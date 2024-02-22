@@ -17,6 +17,7 @@
 
 - 1.1.3 Initial Realease
 - 1.1.4 Added Joblock for hunting ids
+- 1.1.5 Added Joblock Hunter can Give Himself a Unlimited Hunting ID Valid for 9999 Days
 
 # installation 
 

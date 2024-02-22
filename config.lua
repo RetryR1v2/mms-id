@@ -23,11 +23,11 @@ Config.AusweisPreis = 15
 Config.AusweisVerlorenPreis = 20
 Config.ChangeFotoPreis = 10
 
-Config.JobLockHunting = false
+Config.JobLockHunting = true
 Config.Command = 'createhuntingid' -- Command TO Popup HunterLicense Menü
 Config.Jobs =  {
     {JobName = 'hunter'},
 }
 Config.HuntingLicensePrice = 10
 Config.HuntingLicenseVerlorenPrice = 30
-Config.HuntingIdPicture = 'https://i.postimg.cc/7hT8KpcW/nophoto.jpg' -- <-- Picture of Directlink from  https://postimg.cc Readme for Picture Info
+Config.HuntingIdPicture = 'https://i.postimg.cc/KvJYFgW5/jagt.png' -- <-- Picture of Directlink from  https://postimg.cc Readme for Picture Info

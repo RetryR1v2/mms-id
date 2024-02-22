@@ -147,6 +147,39 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
     end)
 end)
 
+RegisterServerEvent('mms-id:server:createmyownhuntingid',function ()
+    local src = source
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local identifier = Character.identifier
+    local firstname = Character.firstname
+    local lastname = Character.lastname
+    local age = Character.age
+    local year = os.date('%Y')
+    local month = os.date('%m')
+    local day = os.date('%d')
+    local hour = os.date('%H')
+    local min = os.date('%M')
+    local date = day ..':'..  month .. ':' .. year .. _U('AT') .. hour .. ':' ..min.. _U('Clock')
+    local picture = Config.HuntingIdPicture
+    local days = 9999
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+        if result[1] ~= nil then
+            VORPcore.NotifyTip(src, _U('AlreadyGotHuntingLicense'), 5000)
+        else
+            local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
+            local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
+                if cancarry and cancarryitem then
+                    MySQL.insert('INSERT INTO `mms_huntingid` (identifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    {identifier,firstname,lastname,age,date,picture,days}, function()end)
+                    VORPcore.NotifyTip(src, _U('YouGaveYourself'), 5000)
+                    exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
+                else
+                    VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
+                end
+        end
+    end)
+end)
+
 
 RegisterServerEvent('mms-id:server:regiveid',function ()
     local src = source

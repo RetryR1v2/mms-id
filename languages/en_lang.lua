@@ -58,4 +58,6 @@ Locales["en_lang"] = {
     RevokedHuntingID = 'Your hunting license has been revoked',
     YouRevokedHuntingID = 'You have a hunting license revoked',
     PlayerGotNoHuntingID = 'Citizen has no hunting license to revoke',
+    JobMyOwnLizenz = 'Eigene Jagtlizenz Austellen',
+    YouGaveYourself = 'Du hast dir eine Jagdlizenz Ausgestellt',
 }

@@ -4,8 +4,8 @@ local BccUtils = exports['bcc-utils'].initiate()
 local FeatherMenu =  exports['feather-menu'].initiate()
 
 
-local CreatedBlips = {}
-local CreatedNpcs = {}
+local CreatedBlips3 = {}
+local CreatedNpcs3 = {}
 local HuntingLizenzOpen = false
 local Ausweisgot = false
 local jagtlizenzgot = false
@@ -17,13 +17,13 @@ local AusweisMenuPrompt = BccUtils.Prompts:SetupPromptGroup()
     if Config.AusweisBlips then
         for h,v in pairs(Config.AusweisLocations) do
         local lotteryblip = BccUtils.Blips:SetBlip(_U('BlipName'), 'blip_job_board', 3.2, v.coords.x,v.coords.y,v.coords.z)
-        CreatedBlips[#CreatedBlips + 1] = lotteryblip
+        CreatedBlips3[#CreatedBlips3 + 1] = lotteryblip
         end
     end
     if Config.CreateNPC then
         for h,v in pairs(Config.AusweisLocations) do
         local ausweisped = BccUtils.Ped:Create('A_M_O_SDUpperClass_01', v.coords.x, v.coords.y, v.coords.z -1, 0, 'world', false)
-        CreatedNpcs[#CreatedNpcs + 1] = ausweisped
+        CreatedNpcs3[#CreatedNpcs3 + 1] = ausweisped
         ausweisped:Freeze()
         ausweisped:SetHeading(v.NpcHeading)
         ausweisped:Invincible()
@@ -204,6 +204,16 @@ Citizen.CreateThread(function ()
         TriggerEvent('mms-id:client:revokehuntingid')
     end)
     AusweisMenuPage6:RegisterElement('button', {
+        label = _U('JobMyOwnLizenz'),
+        style = {
+            ['background-color'] = '#FF8C00',
+            ['color'] = 'orange',
+            ['border-radius'] = '6px'
+        },
+    }, function()
+        TriggerEvent('mms-id:client:createmyownhuntingid')
+    end)
+    AusweisMenuPage6:RegisterElement('button', {
         label =  _U('CloseMenu'),
         style = {
         ['background-color'] = '#FF8C00',
@@ -270,6 +280,11 @@ end)
 RegisterNetEvent('mms-id:client:revokehuntingid')
 AddEventHandler('mms-id:client:revokehuntingid',function ()
     TriggerServerEvent('mms-id:server:revokehuntingid')
+end)
+
+RegisterNetEvent('mms-id:client:createmyownhuntingid')
+AddEventHandler('mms-id:client:createmyownhuntingid',function()
+    TriggerServerEvent('mms-id:server:createmyownhuntingid')
 end)
 
 
@@ -1049,10 +1064,10 @@ end)
 ---- CleanUp on Resource Restart 
 
 RegisterNetEvent('onResourceStop',function()
-    for _, npcs in ipairs(CreatedNpcs) do
+    for _, npcs in ipairs(CreatedNpcs3) do
         npcs:Remove()
 	end
-    for _, blips in ipairs(CreatedBlips) do
+    for _, blips in ipairs(CreatedBlips3) do
         blips:Remove()
 	end
 end)
