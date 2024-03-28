@@ -16,6 +16,10 @@ Config.AusweisLocations = {
         coords = vector3(-251.55, 742.91, 118.09),   --- Also the Location of Blip and Npc (Valentine)
         NpcHeading = 110.86,
     },
+    {
+        coords = vector3(-798.78, -1194.6, 44.0),   --- Also the Location of Blip and Npc (Blackwater)
+        NpcHeading = 175.84,
+    },
 
 }
 

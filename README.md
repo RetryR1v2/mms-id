@@ -19,6 +19,12 @@
 - 1.1.4 Added Joblock for hunting ids
 - 1.1.5 Added Joblock Hunter can Give Himself a Unlimited Hunting ID Valid for 9999 Days
 - 1.1.6 Added Hunting ID SQL File
+- 1.1.7 Reworked Database
+- Now Using Char Identifiert Instead of Steam id to Verify ID and HuntingID 
+- Changed Photo Link in Databsae to LongText to make longer Links Possible
+- Changed All Files You need to Delte Database and Replace whole script for that Update
+- Removed Shared Scripts ox_lib its not needed for ID System
+- Now using JobLabel instead of JobId
 
 # installation 
 

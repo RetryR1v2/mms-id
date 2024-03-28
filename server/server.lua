@@ -33,7 +33,8 @@ exports.vorp_inventory:registerUsableItem('idcard', function(data)
     local src = data.source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
-    MySQL.query('SELECT * FROM `mms_id` WHERE identifier = ?', {identifier}, function(result)
+    local charidentifier = Character.charIdentifier
+    MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             local firstname = result[1].firstname
             local lastname = result[1].lastname
@@ -53,7 +54,8 @@ exports.vorp_inventory:registerUsableItem('jagtlizenz', function(data)
     local src = data.source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    local charidentifier = Character.charIdentifier
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             local firstname = result[1].firstname
             local lastname = result[1].lastname
@@ -71,11 +73,12 @@ RegisterServerEvent('mms-id:server:createid',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local Money = Character.money
     local firstname = Character.firstname
     local lastname = Character.lastname
     local nickname = Character.nickname
-    local job = Character.job
+    local job = Character.jobLabel
     local age = Character.age
     local gender = Character.gender
     local year = os.date('%Y')
@@ -85,7 +88,7 @@ RegisterServerEvent('mms-id:server:createid',function ()
     local min = os.date('%M')
     local date = day ..':'..  month .. ':' .. year .. _U('AT') .. hour .. ':' ..min.. _U('Clock')
     local picture = 'https://i.postimg.cc/7hT8KpcW/nophoto.jpg'
-    MySQL.query('SELECT * FROM `mms_id` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             VORPcore.NotifyTip(src, _U('AlreadyGotID'), 5000)
         else
@@ -93,8 +96,8 @@ RegisterServerEvent('mms-id:server:createid',function ()
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
             local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'idcard', 1, nil)
                 if cancarry and cancarryitem then
-                    MySQL.insert('INSERT INTO `mms_id` (identifier,firstname,lastname,nickname,job,age,gender,date,picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    {identifier,firstname,lastname,nickname,job,age,gender,date,picture}, function()end)
+                    MySQL.insert('INSERT INTO `mms_id` (identifier,charidentifier,firstname,lastname,nickname,job,age,gender,date,picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    {identifier,charidentifier,firstname,lastname,nickname,job,age,gender,date,picture}, function()end)
                     Character.removeCurrency(0,Config.AusweisPreis)
                     VORPcore.NotifyTip(src, _U('BoughtID').. Config.AusweisPreis ..'$', 5000)
                     exports.vorp_inventory:addItem(src, 'idcard', 1,nil,nil)
@@ -113,6 +116,7 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local Money = Character.money
     local firstname = Character.firstname
     local lastname = Character.lastname
@@ -124,7 +128,7 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
     local min = os.date('%M')
     local date = day ..':'..  month .. ':' .. year .. _U('AT') .. hour .. ':' ..min.. _U('Clock')
     local picture = Config.HuntingIdPicture
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             VORPcore.NotifyTip(src, _U('AlreadyGotHuntingLicense'), 5000)
         else
@@ -132,8 +136,8 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
             local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
                 if cancarry and cancarryitem then
-                    MySQL.insert('INSERT INTO `mms_huntingid` (identifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    {identifier,firstname,lastname,age,date,picture,days}, function()end)
+                    MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    {identifier,charidentifier,firstname,lastname,age,date,picture,days}, function()end)
                     Character.removeCurrency(0,Config.HuntingLicensePrice * calculatedays)
                     VORPcore.NotifyTip(src, _U('BoughtHuntingID').. Config.HuntingLicensePrice * calculatedays ..'$', 5000)
                     exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
@@ -151,6 +155,7 @@ RegisterServerEvent('mms-id:server:createmyownhuntingid',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local firstname = Character.firstname
     local lastname = Character.lastname
     local age = Character.age
@@ -162,15 +167,15 @@ RegisterServerEvent('mms-id:server:createmyownhuntingid',function ()
     local date = day ..':'..  month .. ':' .. year .. _U('AT') .. hour .. ':' ..min.. _U('Clock')
     local picture = Config.HuntingIdPicture
     local days = 9999
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             VORPcore.NotifyTip(src, _U('AlreadyGotHuntingLicense'), 5000)
         else
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
             local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
                 if cancarry and cancarryitem then
-                    MySQL.insert('INSERT INTO `mms_huntingid` (identifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    {identifier,firstname,lastname,age,date,picture,days}, function()end)
+                    MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    {identifier,charidentifier,firstname,lastname,age,date,picture,days}, function()end)
                     VORPcore.NotifyTip(src, _U('YouGaveYourself'), 5000)
                     exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
                 else
@@ -185,8 +190,9 @@ RegisterServerEvent('mms-id:server:regiveid',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local Money = Character.money
-    MySQL.query('SELECT * FROM `mms_id` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             if Money >= Config.AusweisVerlorenPreis then
                 local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
@@ -207,8 +213,9 @@ RegisterServerEvent('mms-id:server:regivehuntingid',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local Money = Character.money
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             if Money >= Config.HuntingLicenseVerlorenPrice then
                 local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
@@ -229,13 +236,14 @@ RegisterServerEvent('mms-id:server:changephoto',function (photolink)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local Money = Character.money
-        MySQL.query('SELECT * FROM `mms_id` WHERE identifier = ?', {identifier}, function(result)
+        MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
             if result[1] ~= nil then
                 if Money >= Config.ChangeFotoPreis then
                     Character.removeCurrency(0,Config.ChangeFotoPreis)
                     VORPcore.NotifyTip(src, _U('ChangedPicture').. Config.ChangeFotoPreis ..'$', 5000)
-                    MySQL.update('UPDATE `mms_id` SET picture = ? WHERE identifier = ?',{photolink, identifier})
+                    MySQL.update('UPDATE `mms_id` SET picture = ? WHERE charidentifier = ?',{photolink, charidentifier})
                 else
                     VORPcore.NotifyTip(src, _U('NotEnoghMoney'), 5000)
                 end
@@ -247,9 +255,10 @@ RegisterServerEvent('mms-id:server:deltehuntingid',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    local charidentifier = Character.charIdentifier
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
-            MySQL.execute('DELETE FROM mms_huntingid WHERE identifier = ?', { identifier }, function() end)
+            MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', { charidentifier }, function() end)
             VORPcore.NotifyTip(src, _U('BurnedHuntingLicense'), 5000)
             exports.vorp_inventory:subItem(src, 'jagtlizenz', 1, nil, nil)
         end
@@ -263,9 +272,10 @@ RegisterServerEvent('mms-id:server:showidclosestplayer',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local MyPedId = GetPlayerPed(src)
     local MyCoords =  GetEntityCoords(MyPedId)
-    MySQL.query('SELECT * FROM `mms_id` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             local firstname = result[1].firstname
             local lastname = result[1].lastname
@@ -297,9 +307,10 @@ RegisterServerEvent('mms-id:server:showidclosestplayer',function ()
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
     local MyPedId = GetPlayerPed(src)
     local MyCoords =  GetEntityCoords(MyPedId)
-    MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {identifier}, function(result)
+    MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             local firstname = result[1].firstname
             local lastname = result[1].lastname
@@ -337,6 +348,7 @@ end)
 RegisterServerEvent('mms-id:server:createjobhuntingid',function (days)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
+    local charidentifier = Character.charIdentifier
     local MyPedId = GetPlayerPed(src)
     local MyCoords =  GetEntityCoords(MyPedId)
     local year = os.date('%Y')
@@ -352,19 +364,20 @@ RegisterServerEvent('mms-id:server:createjobhuntingid',function (days)
         local PlayerCoords =  GetEntityCoords(PlayerPedId)
         local Dist = #(MyCoords - PlayerCoords)
         local closestidentifier = ClosestCharacter.identifier
+        local closestcharidentifier = ClosestCharacter.charIdentifier
         local closestfirstname = ClosestCharacter.firstname
         local closestlastname = ClosestCharacter.lastname
         local closestage = ClosestCharacter.age
         if Dist > 0.3 and Dist < 3.0 then
-            MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {closestidentifier}, function(result)
+            MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {closestcharidentifier}, function(result)
                 if result[1] ~= nil then
                     local cancarry = exports.vorp_inventory:canCarryItems(player , 1, nil)
                     local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'jagtlizenz', 1, nil)
                         if cancarry and cancarryitem then
-                            MySQL.execute('DELETE FROM mms_huntingid WHERE identifier = ?', {closestidentifier}, function() end)
+                            MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', {closestcharidentifier}, function() end)
                             Citizen.Wait(500)
-                            MySQL.insert('INSERT INTO `mms_huntingid` (identifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            {closestidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
+                            MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
                             VORPcore.NotifyTip(src, _U('YouGaveID') .. closestfirstname .. ' ' .. closestlastname, 5000)
                             exports.vorp_inventory:addItem(player, 'jagtlizenz', 1,nil,nil)
                         else
@@ -375,8 +388,8 @@ RegisterServerEvent('mms-id:server:createjobhuntingid',function (days)
                     local cancarry = exports.vorp_inventory:canCarryItems(player , 1, nil)
                     local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'jagtlizenz', 1, nil)
                         if cancarry and cancarryitem then
-                            MySQL.insert('INSERT INTO `mms_huntingid` (identifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            {closestidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
+                            MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
                             VORPcore.NotifyTip(src, _U('YouGaveID') .. closestfirstname .. ' ' .. closestlastname, 5000)
                             exports.vorp_inventory:addItem(player, 'jagtlizenz', 1,nil,nil)
                             
@@ -405,10 +418,11 @@ RegisterServerEvent('mms-id:server:revokehuntingid',function ()
         local PlayerCoords =  GetEntityCoords(PlayerPedId)
         local Dist = #(MyCoords - PlayerCoords)
         local closestidentifier = ClosestCharacter.identifier
+        local closestcharidentifier = ClosestCharacter.charIdentifier
         if Dist > 0.3 and Dist < 3.0 then
-            MySQL.query('SELECT * FROM `mms_huntingid` WHERE identifier = ?', {closestidentifier}, function(result)
+            MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {closestcharidentifier}, function(result)
                 if result[1] ~= nil then
-                    MySQL.execute('DELETE FROM mms_huntingid WHERE identifier = ?', {closestidentifier}, function() end)
+                    MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', {closestcharidentifier}, function() end)
                     local hasitem = exports.vorp_inventory:getItemCount(player, nil, 'jagtlizenz',nil)
                     if hasitem > 0 then
                     exports.vorp_inventory:subItem(player, 'jagtlizenz', 1,nil,nil)

@@ -1,5 +1,6 @@
 CREATE TABLE `mms_id` (
 	`identifier` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
+	`charidentifier` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
 	`firstname` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
 	`lastname` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
 	`nickname` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_general_ci',

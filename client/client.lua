@@ -1063,11 +1063,13 @@ end)
 
 ---- CleanUp on Resource Restart 
 
-RegisterNetEvent('onResourceStop',function()
+RegisterNetEvent('onResourceStop',function(resource)
+    if resource == GetCurrentResourceName() then
     for _, npcs in ipairs(CreatedNpcs3) do
         npcs:Remove()
 	end
     for _, blips in ipairs(CreatedBlips3) do
         blips:Remove()
 	end
+    end
 end)
