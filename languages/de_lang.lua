@@ -46,7 +46,6 @@ Locales["de_lang"] = {
     YouShowID = 'Du Zeigs deinen Ausweis ',
     NoNearbyPlayer = 'Kein Spieler in der Nähe!',
     YouShowHuntingID = 'Du Zeigs deine Jagdlizenz ',
-    -- New
     JobGiveHuntingLicense = 'Jagdlizenz Austellen',
     JobRevokeHuntingLicense = 'Jagdlizenz Entziehen',
     JobHowManyDays = 'Für Wieviele Tage ?',
@@ -60,4 +59,8 @@ Locales["de_lang"] = {
     PlayerGotNoHuntingID = 'Mitbürger hat keine Jagdlizenz zum Wegnehmen',
     JobMyOwnLizenz = 'Eigene Jagtlizenz Austellen',
     YouGaveYourself = 'Du hast dir eine Jagdlizenz Ausgestellt',
+    -- New
+    UpdatedID = 'Du hast deinen Ausweis Erneuer Bearbeitungskosten: ',
+    HaveNoID = 'Du hast keinen Ausweis lasse dir Erstmal einen Austellen',
+    UpdateOwnID = 'Ausweis erneuern Preis: '
 }

@@ -111,6 +111,33 @@ RegisterServerEvent('mms-id:server:createid',function ()
     end)
 end)
 
+RegisterServerEvent('mms-id:server:updateownid',function ()
+    local src = source
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local charidentifier = Character.charIdentifier
+    local Money = Character.money
+    local firstname = Character.firstname
+    local lastname = Character.lastname
+    local nickname = Character.nickname
+    local job = Character.jobLabel
+    MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
+        if result[1] ~= nil then
+            if Money >= Config.UpdateIdPrice then
+                MySQL.update('UPDATE `mms_id` SET firstname = ? WHERE charidentifier = ?',{firstname, charidentifier})
+                MySQL.update('UPDATE `mms_id` SET lastname = ? WHERE charidentifier = ?',{lastname, charidentifier})
+                MySQL.update('UPDATE `mms_id` SET nickname = ? WHERE charidentifier = ?',{nickname, charidentifier})
+                MySQL.update('UPDATE `mms_id` SET job = ? WHERE charidentifier = ?',{job, charidentifier})
+                Character.removeCurrency(0,Config.UpdateIdPrice)
+                VORPcore.NotifyTip(src, _U('UpdatedID').. Config.UpdateIdPrice ..'$', 5000)
+            else
+                VORPcore.NotifyTip(src, _U('NotEnoghMoney'), 5000)
+            end
+        else
+            VORPcore.NotifyTip(src, _U('HaveNoID'), 5000)
+        end
+    end)
+end)
+
 RegisterServerEvent('mms-id:server:createhuntingid',function (days)
     local calculatedays = tonumber(days)
     local src = source

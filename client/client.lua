@@ -111,6 +111,16 @@ Citizen.CreateThread(function ()
         TriggerEvent('mms-id:client:regiveid')
     end)
     AusweisMenuPage1:RegisterElement('button', {
+        label = _U('UpdateOwnID').. Config.UpdateIdPrice ..'$',
+        style = {
+            ['background-color'] = '#FF8C00',
+            ['color'] = 'orange',
+            ['border-radius'] = '6px'
+        },
+    }, function()
+        TriggerEvent('mms-id:client:updateownid')
+    end)
+    AusweisMenuPage1:RegisterElement('button', {
         label = _U('ChangePicture').. Config.ChangeFotoPreis ..'$',
         style = {
             ['background-color'] = '#FF8C00',
@@ -270,6 +280,11 @@ end)
 RegisterNetEvent('mms-id:client:createid')
 AddEventHandler('mms-id:client:createid',function ()
     TriggerServerEvent('mms-id:server:createid')
+end)
+
+RegisterNetEvent('mms-id:client:updateownid')
+AddEventHandler('mms-id:client:updateownid',function ()
+    TriggerServerEvent('mms-id:server:updateownid')
 end)
 
 RegisterNetEvent('mms-id:client:regiveid')

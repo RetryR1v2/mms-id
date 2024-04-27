@@ -46,7 +46,6 @@ Locales["ro_lang"] = {
 	YouShowID = 'Iti arati ID-ul ',
 	NoNearbyPlayer = 'Niciun jucator in apropiere!',
 	YouShowHuntingID = 'Iti arati licenta de vanatoare ',
-	-- New
 	JobGiveHuntingLicense = 'Emitere licenta de vanatoare',
 	JobRevokeHuntingLicense = 'Revocare licenta de vanatoare',
 	JobHowManyDays = 'Cate zile?',
@@ -60,4 +59,8 @@ Locales["ro_lang"] = {
 	PlayerGotNoHuntingID = 'Cetateanul nu are o licenta de vanatoare de revocat',
 	JobMyOwnLizenz = 'Emitere proprie licenta de vanatoare',
 	YouGaveYourself = 'ti-ai emis o licenta de vanatoare',
+	-- New
+    UpdatedID = 'Du hast deinen Ausweis Erneuer Bearbeitungskosten: ',
+    HaveNoID = 'Du hast keinen Ausweis lasse dir Erstmal einen Austellen',
+    UpdateOwnID = 'Ausweis erneuern Preis: '
 }

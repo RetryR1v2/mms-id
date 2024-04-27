@@ -22,10 +22,12 @@ Config.AusweisLocations = {
     },
 
 }
+--NEW
+Config.UpdateIdPrice = 10.00
 
-Config.AusweisPreis = 15
-Config.AusweisVerlorenPreis = 20
-Config.ChangeFotoPreis = 10
+Config.AusweisPreis = 10.00
+Config.AusweisVerlorenPreis = 15.00
+Config.ChangeFotoPreis = 10.00
 
 Config.JobLockHunting = true
 Config.Command = 'createhuntingid' -- Command TO Popup HunterLicense Menü

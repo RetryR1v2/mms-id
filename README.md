@@ -25,6 +25,7 @@
 - Changed All Files You need to Delte Database and Replace whole script for that Update
 - Removed Shared Scripts ox_lib its not needed for ID System
 - Now using JobLabel instead of JobId
+- 1.1.8 Update ID Added You now Can Update your ID if Job Change or Something Else.
 
 # installation 
 
