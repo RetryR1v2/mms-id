@@ -26,6 +26,12 @@
 - Removed Shared Scripts ox_lib its not needed for ID System
 - Now using JobLabel instead of JobId
 - 1.1.8 Update ID Added You now Can Update your ID if Job Change or Something Else.
+- 1.1.9 New version
+- Added Doctor can Write some about the sickness
+- Updated Code of menu Cleaned around 300 Lines of code
+- Now Faster Database Access
+- Updated SQL File 
+- If you Update from an OLD Version just run the mms_docrecipe Part in your Database
 
 # installation 
 

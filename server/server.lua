@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------
 -- version checker
 -----------------------------------------------------------------------
-local function versionCheckPrint(_type, log)
+--[[local function versionCheckPrint(_type, log)
     local color = _type == 'success' and '^2' or '^1'
 
     print(('^5['..GetCurrentResourceName()..']%s %s^7'):format(color, log))
@@ -25,14 +25,13 @@ local function CheckVersion()
             versionCheckPrint('error', ('You are currently running an outdated version, please update to version %s'):format(text))
         end
     end)
-end
+end]]
 local VORPcore = exports.vorp_core:GetCore()
 
 
-exports.vorp_inventory:registerUsableItem('idcard', function(data)
+exports.vorp_inventory:registerUsableItem(Config.IdCardItem, function(data)
     local src = data.source
     local Character = VORPcore.getUser(src).getUsedCharacter
-    local identifier = Character.identifier
     local charidentifier = Character.charIdentifier
     MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
@@ -50,10 +49,9 @@ exports.vorp_inventory:registerUsableItem('idcard', function(data)
     end)
 end)
 
-exports.vorp_inventory:registerUsableItem('jagtlizenz', function(data)
+exports.vorp_inventory:registerUsableItem(Config.HuntingIdItem, function(data)
     local src = data.source
     local Character = VORPcore.getUser(src).getUsedCharacter
-    local identifier = Character.identifier
     local charidentifier = Character.charIdentifier
     MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
@@ -68,6 +66,27 @@ exports.vorp_inventory:registerUsableItem('jagtlizenz', function(data)
         end
     end)
 end)
+
+exports.vorp_inventory:registerUsableItem('docpaper', function(data)
+    local src = data.source
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local charidentifier = Character.charIdentifier
+    MySQL.query('SELECT * FROM `mms_docrecipe` WHERE charidentifier = ?', {charidentifier}, function(result)
+        if result[1] ~= nil then
+            local Name = result[1].name
+            local DocName = result[1].docname
+            local Age = result[1].age
+            local Date = result[1].date
+            local Reason = result[1].reason
+            local Therapie = result[1].therapie
+            local Days = result[1].days
+            local MyOwn = true
+            Citizen.Wait(500)
+            TriggerClientEvent('mms-id:client:opendocpaper',src,Name,DocName,Age,Date,Reason,Therapie,Days,MyOwn)
+        end
+    end)
+end)
+
 --https://i.postimg.cc/GmVktCg9/bild.png https://i.postimg.cc/FHJTD709/ausweisbild.png
 RegisterServerEvent('mms-id:server:createid',function ()
     local src = source
@@ -92,15 +111,15 @@ RegisterServerEvent('mms-id:server:createid',function ()
         if result[1] ~= nil then
             VORPcore.NotifyTip(src, _U('AlreadyGotID'), 5000)
         else
-            if Money >= Config.AusweisVerlorenPreis then
+            if Money >= Config.AusweisPreis then
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
-            local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'idcard', 1, nil)
+            local cancarryitem = exports.vorp_inventory:canCarryItem(src, Config.IdCardItem, 1, nil)
                 if cancarry and cancarryitem then
                     MySQL.insert('INSERT INTO `mms_id` (identifier,charidentifier,firstname,lastname,nickname,job,age,gender,date,picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     {identifier,charidentifier,firstname,lastname,nickname,job,age,gender,date,picture}, function()end)
                     Character.removeCurrency(0,Config.AusweisPreis)
                     VORPcore.NotifyTip(src, _U('BoughtID').. Config.AusweisPreis ..'$', 5000)
-                    exports.vorp_inventory:addItem(src, 'idcard', 1,nil,nil)
+                    exports.vorp_inventory:addItem(src, Config.IdCardItem, 1,nil,nil)
                 else
                     VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
                 end
@@ -138,8 +157,80 @@ RegisterServerEvent('mms-id:server:updateownid',function ()
     end)
 end)
 
+RegisterServerEvent('mms-id:server:createdoctorrecipe',function(Firstname,Lastname,RecipeReason,Therapie,Days)
+    local src = source
+    local Found = false
+    local MyPedId = GetPlayerPed(src)
+    local MyCoords =  GetEntityCoords(MyPedId)
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
+    local Money = Character.money
+    local Name = Firstname .. ' ' .. Lastname
+    local DocName = Character.firstname .. ' ' .. Character.lastname
+    local year = os.date('%Y')
+    local month = os.date('%m')
+    local day = os.date('%d')
+    local hour = os.date('%H')
+    local min = os.date('%M')
+    local date = day ..':'..  month .. ':' .. year .. _U('AT') .. hour .. ':' ..min.. _U('Clock')
+    for _, player in ipairs(GetPlayers()) do
+        local ClosestCharacter = VORPcore.getUser(player).getUsedCharacter
+        local PlayerPedId = GetPlayerPed(player)
+        local PlayerCoords =  GetEntityCoords(PlayerPedId)
+        local Dist = #(MyCoords - PlayerCoords)
+        local closestidentifier = ClosestCharacter.identifier
+        local closestcharidentifier = ClosestCharacter.charIdentifier
+        local closestage = ClosestCharacter.age
+        if Dist > 0.1 and Dist < 3.0 and not Found then
+            MySQL.query('SELECT * FROM `mms_docrecipe` WHERE charidentifier = ?', {closestcharidentifier}, function(result)
+                if result[1] ~= nil then
+                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'docpaper', 1, nil)
+                        if cancarryitem then
+                            MySQL.execute('DELETE FROM mms_docrecipe WHERE charidentifier = ?', {closestcharidentifier}, function() end)
+                            Citizen.Wait(500)
+                            MySQL.insert('INSERT INTO `mms_docrecipe` (identifier,charidentifier,name,docname,reason,therapie,age,date,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,Name,DocName,RecipeReason,Therapie,closestage,date,Days}, function()end)
+                            VORPcore.NotifyTip(src, _U('GivenRecipe') .. Name, 5000)
+                            VORPcore.NotifyTip(player, _U('RecipeRecived') .. Name, 5000)
+                            exports.vorp_inventory:addItem(player, 'docpaper', 1,nil,nil)
+                        else
+                            MySQL.execute('DELETE FROM mms_docrecipe WHERE charidentifier = ?', {closestcharidentifier}, function() end)
+                            Citizen.Wait(500)
+                            MySQL.insert('INSERT INTO `mms_docrecipe` (identifier,charidentifier,name,docname,reason,therapie,age,date,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,Name,DocName,RecipeReason,Therapie,closestage,date,Days}, function()end)
+                            VORPcore.NotifyTip(src, _U('GivenRecipe') .. Name, 5000)
+                            VORPcore.NotifyTip(player, _U('RecipeRecived') .. Name, 5000)
+                        end
+                else
+                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'docpaper', 1, nil)
+                        if cancarryitem then
+                            MySQL.insert('INSERT INTO `mms_docrecipe` (identifier,charidentifier,name,docname,reason,therapie,age,date,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,Name,DocName,RecipeReason,Therapie,closestage,date,Days}, function()end)
+                            VORPcore.NotifyTip(src, _U('GivenRecipe') .. Name, 5000)
+                            VORPcore.NotifyTip(player, _U('RecipeRecived') .. Name, 5000)
+                            exports.vorp_inventory:addItem(player, 'docpaper', 1,nil,nil)
+                        else
+                            MySQL.execute('DELETE FROM mms_docrecipe WHERE charidentifier = ?', {closestcharidentifier}, function() end)
+                            Citizen.Wait(500)
+                            MySQL.insert('INSERT INTO `mms_docrecipe` (identifier,charidentifier,name,docname,reason,therapie,age,date,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            {closestidentifier,closestcharidentifier,Name,DocName,RecipeReason,Therapie,closestage,date,Days}, function()end)
+                            VORPcore.NotifyTip(src, _U('GivenRecipe') .. Name, 5000)
+                            VORPcore.NotifyTip(player, _U('RecipeRecived') .. Name, 5000)
+                        end
+                end
+            end)
+            Found = true
+        end
+        end
+        if not Found then 
+            VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+        else
+            Found = false
+        end
+end)
+
 RegisterServerEvent('mms-id:server:createhuntingid',function (days)
-    local calculatedays = tonumber(days)
     local src = source
     local Character = VORPcore.getUser(src).getUsedCharacter
     local identifier = Character.identifier
@@ -148,6 +239,7 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
     local firstname = Character.firstname
     local lastname = Character.lastname
     local age = Character.age
+    local calculatedays = tonumber(days)
     local year = os.date('%Y')
     local month = os.date('%m')
     local day = os.date('%d')
@@ -161,13 +253,13 @@ RegisterServerEvent('mms-id:server:createhuntingid',function (days)
         else
             if Money >= Config.HuntingLicensePrice * calculatedays then
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
-            local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
+            local cancarryitem = exports.vorp_inventory:canCarryItem(src, Config.HuntingIdItem, 1, nil)
                 if cancarry and cancarryitem then
                     MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                     {identifier,charidentifier,firstname,lastname,age,date,picture,days}, function()end)
                     Character.removeCurrency(0,Config.HuntingLicensePrice * calculatedays)
                     VORPcore.NotifyTip(src, _U('BoughtHuntingID').. Config.HuntingLicensePrice * calculatedays ..'$', 5000)
-                    exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
+                    exports.vorp_inventory:addItem(src, Config.HuntingIdItem, 1,nil,nil)
                 else
                     VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
                 end
@@ -199,12 +291,12 @@ RegisterServerEvent('mms-id:server:createmyownhuntingid',function ()
             VORPcore.NotifyTip(src, _U('AlreadyGotHuntingLicense'), 5000)
         else
             local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
-            local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
+            local cancarryitem = exports.vorp_inventory:canCarryItem(src, Config.HuntingIdItem, 1, nil)
                 if cancarry and cancarryitem then
                     MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                     {identifier,charidentifier,firstname,lastname,age,date,picture,days}, function()end)
                     VORPcore.NotifyTip(src, _U('YouGaveYourself'), 5000)
-                    exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
+                    exports.vorp_inventory:addItem(src, Config.HuntingIdItem, 1,nil,nil)
                 else
                     VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
                 end
@@ -222,11 +314,14 @@ RegisterServerEvent('mms-id:server:regiveid',function ()
     MySQL.query('SELECT * FROM `mms_id` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             if Money >= Config.AusweisVerlorenPreis then
-                local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
-                local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'idcard', 1, nil)
-                exports.vorp_inventory:addItem(src, 'idcard', 1,nil,nil)
-                Character.removeCurrency(0,Config.AusweisVerlorenPreis)
-                VORPcore.NotifyTip(src, _U('GotNewID').. Config.AusweisVerlorenPreis ..'$', 5000)
+                local cancarryitem = exports.vorp_inventory:canCarryItem(src, Config.IdCardItem, 1, nil)
+                if cancarryitem then
+                    exports.vorp_inventory:addItem(src, Config.IdCardItem, 1,nil,nil)
+                    Character.removeCurrency(0,Config.AusweisVerlorenPreis)
+                    VORPcore.NotifyTip(src, _U('GotNewID').. Config.AusweisVerlorenPreis ..'$', 5000)
+                else
+                    VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
+                end
             else
                 VORPcore.NotifyTip(src, _U('NotEnoghMoney'), 5000)
             end
@@ -245,11 +340,14 @@ RegisterServerEvent('mms-id:server:regivehuntingid',function ()
     MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {charidentifier}, function(result)
         if result[1] ~= nil then
             if Money >= Config.HuntingLicenseVerlorenPrice then
-                local cancarry = exports.vorp_inventory:canCarryItems(src, 1, nil)
-                local cancarryitem = exports.vorp_inventory:canCarryItem(src, 'jagtlizenz', 1, nil)
-                exports.vorp_inventory:addItem(src, 'jagtlizenz', 1,nil,nil)
-                Character.removeCurrency(0,Config.HuntingLicenseVerlorenPrice)
-                VORPcore.NotifyTip(src, _U('GotNewHuntingID').. Config.HuntingLicenseVerlorenPrice ..'$', 5000)
+                local cancarryitem = exports.vorp_inventory:canCarryItem(src, Config.HuntingIdItem, 1, nil)
+                if cancarryitem then
+                    exports.vorp_inventory:addItem(src, Config.HuntingIdItem, 1,nil,nil)
+                    Character.removeCurrency(0,Config.HuntingLicenseVerlorenPrice)
+                    VORPcore.NotifyTip(src, _U('GotNewHuntingID').. Config.HuntingLicenseVerlorenPrice ..'$', 5000)
+                else
+                    VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
+                end
             else
                 VORPcore.NotifyTip(src, _U('NotEnoghMoney'), 5000)
             end
@@ -287,7 +385,7 @@ RegisterServerEvent('mms-id:server:deltehuntingid',function ()
         if result[1] ~= nil then
             MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', { charidentifier }, function() end)
             VORPcore.NotifyTip(src, _U('BurnedHuntingLicense'), 5000)
-            exports.vorp_inventory:subItem(src, 'jagtlizenz', 1, nil, nil)
+            exports.vorp_inventory:subItem(src, Config.HuntingIdItem, 1, nil, nil)
         end
     end)
 end)
@@ -323,7 +421,7 @@ RegisterServerEvent('mms-id:server:showidclosestplayer',function ()
                     VORPcore.NotifyTip(src, _U('YouShowID') .. closestfirstname .. ' ' .. closestlastname .. '!',  5000)
                     TriggerClientEvent('mms-id:client:getid',player,firstname,lastname,nickname,job,age,gender,date,picture)
                 elseif Dist > 3.0 then
-                    VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+                    --VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
                 end
             end
         end
@@ -356,12 +454,54 @@ RegisterServerEvent('mms-id:server:showidclosestplayer',function ()
                     VORPcore.NotifyTip(src, _U('YouShowHuntingID') .. closestfirstname .. ' ' .. closestlastname .. '!',  5000)
                     TriggerClientEvent('mms-id:client:gethuntingid',player,firstname,lastname,age,date,picture,days)
                 elseif Dist > 3.0 then
-                    VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+                    --VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
                 end
             end
         end
     end)
  end)
+
+ RegisterServerEvent('mms-id:server:showdoctorrecipe',function ()
+    local src = source
+    local Character = VORPcore.getUser(src).getUsedCharacter
+    local identifier = Character.identifier
+    local charidentifier = Character.charIdentifier
+    local MyPedId = GetPlayerPed(src)
+    local MyCoords =  GetEntityCoords(MyPedId)
+    local Found = false
+    local MyOwn = false
+    MySQL.query('SELECT * FROM `mms_docrecipe` WHERE charidentifier = ?', {charidentifier}, function(result)
+        if result[1] ~= nil then
+            local Name = result[1].name
+            local DocName = result[1].docname
+            local Age = result[1].age
+            local Date = result[1].date
+            local Reason = result[1].reason
+            local Therapie = result[1].therapie
+            local Days = result[1].days
+            Citizen.Wait(500)
+            for _, player in ipairs(GetPlayers()) do
+                local ClosestCharacter = VORPcore.getUser(player).getUsedCharacter
+                local PlayerPedId = GetPlayerPed(player)
+                local PlayerCoords =  GetEntityCoords(PlayerPedId)
+                local Dist = #(MyCoords - PlayerCoords)
+                local closestfirstname = ClosestCharacter.firstname
+                local closestlastname = ClosestCharacter.lastname
+                if Dist > 0.3 and Dist < 3.0 and not Found then
+                    Found = true
+                    VORPcore.NotifyTip(src, _U('YouShowRecipeTo') .. closestfirstname .. ' ' .. closestlastname,  5000)
+                    TriggerClientEvent('mms-id:client:opendocpaper',player,Name,DocName,Age,Date,Reason,Therapie,Days,MyOwn)
+                end
+            end
+            if not Found then 
+                VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+            else
+                Found = false
+            end
+        end
+    end)
+ end)
+
 
 
  VORPcore.Callback.Register('mms-id:callback:getplayerjob', function(source,cb)
@@ -399,26 +539,26 @@ RegisterServerEvent('mms-id:server:createjobhuntingid',function (days)
             MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {closestcharidentifier}, function(result)
                 if result[1] ~= nil then
                     local cancarry = exports.vorp_inventory:canCarryItems(player , 1, nil)
-                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'jagtlizenz', 1, nil)
+                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , Config.HuntingIdItem, 1, nil)
                         if cancarry and cancarryitem then
                             MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', {closestcharidentifier}, function() end)
                             Citizen.Wait(500)
                             MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             {closestidentifier,closestcharidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
                             VORPcore.NotifyTip(src, _U('YouGaveID') .. closestfirstname .. ' ' .. closestlastname, 5000)
-                            exports.vorp_inventory:addItem(player, 'jagtlizenz', 1,nil,nil)
+                            exports.vorp_inventory:addItem(player, Config.HuntingIdItem, 1,nil,nil)
                         else
                             VORPcore.NotifyTip(src, _U('AlreadyHasHuntingID'), 5000)
                             VORPcore.NotifyTip(player, _U('YouAlreadyHasHuntingID'), 5000)
                         end
                 else
                     local cancarry = exports.vorp_inventory:canCarryItems(player , 1, nil)
-                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , 'jagtlizenz', 1, nil)
+                    local cancarryitem = exports.vorp_inventory:canCarryItem(player , Config.HuntingIdItem, 1, nil)
                         if cancarry and cancarryitem then
                             MySQL.insert('INSERT INTO `mms_huntingid` (identifier,charidentifier,firstname,lastname,age,date,picture,days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                             {closestidentifier,closestcharidentifier,closestfirstname,closestlastname,closestage,date,picture,days}, function()end)
                             VORPcore.NotifyTip(src, _U('YouGaveID') .. closestfirstname .. ' ' .. closestlastname, 5000)
-                            exports.vorp_inventory:addItem(player, 'jagtlizenz', 1,nil,nil)
+                            exports.vorp_inventory:addItem(player, Config.HuntingIdItem, 1,nil,nil)
                             
                         else
                             VORPcore.NotifyTip(src, _U('PocketFull'), 5000)
@@ -428,7 +568,7 @@ RegisterServerEvent('mms-id:server:createjobhuntingid',function (days)
 
             end)
         elseif Dist > 3.0 then
-            VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+            --VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
             
         end
     end
@@ -450,9 +590,9 @@ RegisterServerEvent('mms-id:server:revokehuntingid',function ()
             MySQL.query('SELECT * FROM `mms_huntingid` WHERE charidentifier = ?', {closestcharidentifier}, function(result)
                 if result[1] ~= nil then
                     MySQL.execute('DELETE FROM mms_huntingid WHERE charidentifier = ?', {closestcharidentifier}, function() end)
-                    local hasitem = exports.vorp_inventory:getItemCount(player, nil, 'jagtlizenz',nil)
+                    local hasitem = exports.vorp_inventory:getItemCount(player, nil, Config.HuntingIdItem,nil)
                     if hasitem > 0 then
-                    exports.vorp_inventory:subItem(player, 'jagtlizenz', 1,nil,nil)
+                    exports.vorp_inventory:subItem(player, Config.HuntingIdItem, 1,nil,nil)
                     end
                     VORPcore.NotifyTip(src, _U('YouRevokedHuntingID'), 5000)
                     VORPcore.NotifyTip(player, _U('RevokedHuntingID'), 5000)
@@ -461,7 +601,7 @@ RegisterServerEvent('mms-id:server:revokehuntingid',function ()
                 end
             end)
         elseif Dist > 3.0 then
-            VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
+           -- VORPcore.NotifyTip(src, _U('NoNearbyPlayer'),  5000)
         end
     end
 end)
@@ -469,4 +609,4 @@ end)
 --------------------------------------------------------------------------------------------------
 -- start version check
 --------------------------------------------------------------------------------------------------
-CheckVersion()
+-- CheckVersion()

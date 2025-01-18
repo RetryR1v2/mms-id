@@ -1,0 +1,9 @@
+<1.1.8>
+- old Version Outdated
+<1.1.9>
+- New version
+- Added Doctor can Write some about the sickness
+- Updated Code of menu Cleaned around 300 Lines of code
+- Now Faster Database Access
+- Updated SQL File 
+- If you Update from an OLD Version just run the mms_docrecipe Part in your Database

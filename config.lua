@@ -2,7 +2,7 @@ Config = {}
 
 
 Config.defaultlang = "de_lang" -- Set Language (Current Languages: "en_lang" English, "de_lang" German)
-
+Config.Debug = true
 -----------------------------------------------------------------------------------
 ---------------------------------ID Settings----------------------------------
 -----------------------------------------------------------------------------------
@@ -20,20 +20,27 @@ Config.AusweisLocations = {
         coords = vector3(-798.78, -1194.6, 44.0),   --- Also the Location of Blip and Npc (Blackwater)
         NpcHeading = 175.84,
     },
-
 }
---NEW
-Config.UpdateIdPrice = 10.00
 
+Config.IdCardItem = 'idcard'
+Config.HuntingIdItem = 'jagtlizenz'
+
+Config.UpdateIdPrice = 10.00
 Config.AusweisPreis = 10.00
 Config.AusweisVerlorenPreis = 15.00
 Config.ChangeFotoPreis = 10.00
 
-Config.JobLockHunting = true
-Config.Command = 'createhuntingid' -- Command TO Popup HunterLicense Menü
-Config.Jobs =  {
-    {JobName = 'hunter'},
+Config.JobLockHunting = false
+Config.HuntingCommand = 'Jagdlizenz' -- Command TO Popup HunterLicense Menü
+Config.HuntingJobs =  {
+    {JobName = 'schmied1'},
 }
-Config.HuntingLicensePrice = 10
-Config.HuntingLicenseVerlorenPrice = 30
-Config.HuntingIdPicture = 'https://i.postimg.cc/KvJYFgW5/jagt.png' -- <-- Picture of Directlink from  https://postimg.cc Readme for Picture Info
+Config.HuntingLicensePrice = 10.00
+Config.HuntingLicenseVerlorenPrice = 30.00
+Config.HuntingIdPicture = 'https://i.postimg.cc/V6C2XNBp/Jagdlizenz.png' -- <-- Picture of Directlink from  https://postimg.cc Readme for Picture Info
+
+Config.CreateDoctorRecipes = true
+Config.DoktorCommand = 'Attest' -- Command TO Popup Doktors Menü
+Config.DoktorJobs =  {
+    {JobName = 'doktor1'},
+}

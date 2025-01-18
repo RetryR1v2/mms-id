@@ -59,8 +59,25 @@ Locales["de_lang"] = {
     PlayerGotNoHuntingID = 'Mitbürger hat keine Jagdlizenz zum Wegnehmen',
     JobMyOwnLizenz = 'Eigene Jagtlizenz Austellen',
     YouGaveYourself = 'Du hast dir eine Jagdlizenz Ausgestellt',
-    -- New
     UpdatedID = 'Du hast deinen Ausweis Erneuer Bearbeitungskosten: ',
     HaveNoID = 'Du hast keinen Ausweis lasse dir Erstmal einen Austellen',
-    UpdateOwnID = 'Ausweis erneuern Preis: '
+    UpdateOwnID = 'Ausweis erneuern Preis: ',
+    -- New
+    CreateRcipeHeader = 'Ärztliches Attest.',
+    RecipeReason = 'Diagnose: ',
+    Therapie = 'Therapie: ',
+    CreateRcipeSubHeader = 'Attest Ausstellen.',
+    Firstname = 'Vorname: ',
+    Lastname = 'Nachname: ',
+    CreateRecipe = 'Attest Ausstellen.',
+    GivenRecipe = 'Rezept Ausgestellt an: ',
+    Duration = 'Wie Lange Gültig ?',
+    RecipeRecived = 'Attest Erhalten',
+    Patient = 'Patient: ',
+    DoctorsName = 'Ausgestellt von Dr. ',
+    MyDoctorsRecipeHeader = 'Ärztliches Attest.',
+    MyDoctorsRecipeSubHeader = 'Mein Ärztliches Attest.',
+    ShowDoctorsRecipe = 'Attest Vorzeigen.',
+    Reason = 'Diagnose: ',
+    YouShowRecipeTo = 'Du Zeigst dein Attest: ',
 }

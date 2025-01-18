@@ -2,8 +2,13 @@ fx_version 'cerulean'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
 game 'rdr3'
 
-description 'mms-id'
 version '1.1.8'
+vorp_checker 'yes'
+vorp_name '^5MMS-ID ^4version Check^3'
+vorp_github 'https://github.com/RetryR1v2/mms-id'
+
+
+description 'mms-id'
 author 'Markus Mueller'
 
 client_scripts {
